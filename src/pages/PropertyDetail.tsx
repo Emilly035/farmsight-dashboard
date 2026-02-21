@@ -1,0 +1,168 @@
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, MapPin, Droplets, Mountain, Sprout, Building, Ruler, DollarSign, MessageSquare, X } from "lucide-react";
+import { properties, formatCurrency, formatArea } from "@/data/mockData";
+import { ScoreBadge } from "@/components/ScoreBadge";
+
+export default function PropertyDetail() {
+  const { id } = useParams();
+  const property = properties.find((p) => p.id === id);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [showContact, setShowContact] = useState(false);
+
+  if (!property) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-muted-foreground">Propriedade não encontrada.</p>
+        <Link to="/search" className="text-primary hover:underline mt-2 inline-block">Voltar à busca</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      <Link to="/search" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="h-4 w-4" /> Voltar à busca
+      </Link>
+
+      {/* Gallery */}
+      <div className="space-y-3">
+        <div className="rounded-xl overflow-hidden aspect-[16/7]">
+          <img src={property.images[selectedImage]} alt={property.name} className="w-full h-full object-cover" />
+        </div>
+        <div className="flex gap-2">
+          {property.images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedImage(i)}
+              className={`rounded-lg overflow-hidden w-20 h-14 border-2 transition-colors ${
+                i === selectedImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
+              }`}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="font-display text-3xl font-bold text-foreground">{property.name}</h1>
+            <ScoreBadge score={property.productivityScore} size="lg" />
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            {property.location}, {property.state}
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="font-display text-3xl font-bold text-foreground">{formatCurrency(property.price)}</p>
+          <p className="text-sm text-muted-foreground">{formatCurrency(property.pricePerHectare)}/ha</p>
+        </div>
+      </div>
+
+      <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+
+      {/* Info Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[
+          { icon: Ruler, label: "Área total", value: formatArea(property.totalArea) },
+          { icon: Sprout, label: "Área produtiva", value: formatArea(property.productiveArea) },
+          { icon: Mountain, label: "Tipo de solo", value: property.soilType },
+          { icon: Droplets, label: "Chuva média", value: `${property.avgRainfall} mm/ano` },
+        ].map(({ icon: Icon, label, value }) => (
+          <div key={label} className="rounded-xl border border-border bg-card p-4">
+            <Icon className="h-5 w-5 text-primary mb-2" />
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-sm font-semibold text-card-foreground mt-0.5">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Infrastructure & Crops */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Building className="h-5 w-5 text-primary" />
+            <h3 className="font-display text-lg font-semibold text-card-foreground">Infraestrutura</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {property.infrastructure.map((item) => (
+              <span key={item} className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sprout className="h-5 w-5 text-primary" />
+            <h3 className="font-display text-lg font-semibold text-card-foreground">Culturas indicadas</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {property.suggestedCrops.map((crop) => (
+              <span key={crop} className="text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium">
+                {crop}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Map placeholder */}
+      <div className="rounded-xl border border-border bg-muted h-64 flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Mapa da localização</p>
+          <p className="text-xs">{property.lat.toFixed(2)}°, {property.lng.toFixed(2)}°</p>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => setShowContact(true)}
+          className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Falar com corretor
+        </button>
+        <Link
+          to="/simulator"
+          className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted transition-colors flex items-center gap-2"
+        >
+          <DollarSign className="h-4 w-4" />
+          Simular lucro
+        </Link>
+      </div>
+
+      {/* Contact Modal */}
+      {showContact && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 w-full max-w-md space-y-4 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl font-bold text-card-foreground">Falar com corretor</h3>
+              <button onClick={() => setShowContact(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground">Sobre: {property.name}</p>
+            <div className="space-y-3">
+              <input placeholder="Seu nome" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input placeholder="Seu telefone" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea placeholder="Sua mensagem..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+              <button
+                onClick={() => setShowContact(false)}
+                className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
+              >
+                Enviar mensagem
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
