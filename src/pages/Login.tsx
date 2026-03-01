@@ -30,13 +30,13 @@ export default function Login() {
       {/* Left - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img src={farmHero} alt="Fazenda" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-earth opacity-70" />
+        <div className="absolute inset-0 bg-gradient-earth opacity-80" />
         <div className="relative z-10 flex flex-col justify-end p-12">
-          <h2 className="font-display text-4xl font-bold text-primary-foreground leading-tight mb-3">
+          <h2 className="font-display text-4xl font-bold text-foreground leading-tight mb-3">
             Onde fazendas viram<br />investimentos
           </h2>
-          <p className="text-primary-foreground/70 text-lg max-w-md">
-            Avalie propriedades rurais pelo potencial produtivo, não apenas pelo preço.
+          <p className="text-muted-foreground text-lg max-w-md">
+            Publique, gerencie e monetize imóveis rurais com dados produtivos reais.
           </p>
         </div>
       </div>
@@ -46,11 +46,11 @@ export default function Login() {
         <div className="w-full max-w-sm space-y-8">
           <div>
             <div className="flex items-center gap-2 mb-8">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="font-display font-bold text-primary-foreground text-sm">AV</span>
+              <div className="w-10 h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
+                <span className="font-display font-bold text-accent-foreground text-sm">AV</span>
               </div>
               <h1 className="font-display text-2xl font-bold text-foreground">
-                AgroVista<span className="text-accent">360</span>
+                AgroVista<span className="text-gradient-gold">360</span>
               </h1>
             </div>
             <h2 className="font-display text-2xl font-bold text-foreground">Entrar</h2>
@@ -74,7 +74,10 @@ export default function Login() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Senha</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground">Senha</label>
+                <Link to="/forgot-password" className="text-xs text-primary hover:underline">Esqueceu a senha?</Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

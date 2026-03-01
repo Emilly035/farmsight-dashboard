@@ -21,6 +21,8 @@ export interface Property {
   lat: number;
   lng: number;
   description: string;
+  status: "ativo" | "pausado" | "vendido";
+  ownerId: string;
 }
 
 export interface Lead {
@@ -34,6 +36,52 @@ export interface Lead {
   date: string;
   message: string;
 }
+
+export interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  maxProperties: number | null;
+  features: string[];
+  highlight?: boolean;
+  color: string;
+}
+
+export const plans: Plan[] = [
+  {
+    id: "basico",
+    name: "Básico",
+    price: 9.9,
+    maxProperties: 3,
+    features: ["Até 3 imóveis", "Suporte básico", "Painel simplificado"],
+    color: "var(--plan-basic)",
+  },
+  {
+    id: "profissional",
+    name: "Profissional",
+    price: 39.9,
+    maxProperties: 15,
+    features: ["Até 15 imóveis", "Destaque visual", "Leads priorizados", "Relatório mensal"],
+    highlight: true,
+    color: "var(--plan-pro)",
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    price: 79.9,
+    maxProperties: null,
+    features: ["Imóveis ilimitados", "Destaque + leads priorizados", "Suporte prioritário", "Analytics avançado"],
+    color: "var(--plan-premium)",
+  },
+  {
+    id: "imobiliaria",
+    name: "Imobiliária",
+    price: 150,
+    maxProperties: null,
+    features: ["Múltiplos usuários", "Gestão de corretores", "Relatórios completos", "API de integração", "Suporte dedicado"],
+    color: "var(--plan-agency)",
+  },
+];
 
 export const properties: Property[] = [
   {
@@ -55,6 +103,8 @@ export const properties: Property[] = [
     lat: -21.17,
     lng: -47.81,
     description: "Fazenda com alto potencial produtivo, solo fértil e infraestrutura completa. Ideal para grãos e cana.",
+    status: "ativo",
+    ownerId: "user1",
   },
   {
     id: "2",
@@ -75,6 +125,8 @@ export const properties: Property[] = [
     lat: -12.09,
     lng: -45.79,
     description: "Grande fazenda no MATOPIBA com infraestrutura moderna. Região de expansão agrícola.",
+    status: "ativo",
+    ownerId: "user1",
   },
   {
     id: "3",
@@ -95,6 +147,8 @@ export const properties: Property[] = [
     lat: -21.78,
     lng: -46.56,
     description: "Sítio encantador com produção diversificada, ideal para agricultura familiar e turismo rural.",
+    status: "pausado",
+    ownerId: "user2",
   },
   {
     id: "4",
@@ -115,6 +169,8 @@ export const properties: Property[] = [
     lat: -12.55,
     lng: -55.72,
     description: "Mega propriedade na capital do agro brasileiro. Score produtivo excepcional.",
+    status: "ativo",
+    ownerId: "user2",
   },
   {
     id: "5",
@@ -135,6 +191,8 @@ export const properties: Property[] = [
     lat: -24.96,
     lng: -53.46,
     description: "Terra Roxa de alta qualidade no oeste paranaense. Excelente para rotação de culturas.",
+    status: "vendido",
+    ownerId: "user1",
   },
   {
     id: "6",
@@ -155,6 +213,8 @@ export const properties: Property[] = [
     lat: -20.36,
     lng: -40.66,
     description: "Pequena propriedade de montanha com potencial para orgânicos e agroturismo.",
+    status: "ativo",
+    ownerId: "user3",
   },
 ];
 

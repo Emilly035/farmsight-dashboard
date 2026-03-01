@@ -1,51 +1,55 @@
 import {
   LayoutDashboard,
   Search,
-  Calculator,
-  Heart,
-  Sparkles,
-  Building2,
+  Home,
   Users,
   FileBarChart,
   MessageSquare,
   Eye,
-  Home,
   LogOut,
+  CreditCard,
+  Plus,
+  Building2,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface SidebarProps {
-  role: "comprador" | "corretor" | "imobiliaria";
-  onRoleChange: (role: "comprador" | "corretor" | "imobiliaria") => void;
+  role: "vendedor" | "corretor" | "imobiliaria";
+  onRoleChange: (role: "vendedor" | "corretor" | "imobiliaria") => void;
   collapsed: boolean;
   onToggle: () => void;
 }
 
 const menusByRole = {
-  comprador: [
+  vendedor: [
     { title: "Painel", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Buscar fazendas", url: "/search", icon: Search },
-    { title: "Simular lucro", url: "/simulator", icon: Calculator },
-    { title: "Recomendações", url: "/matching", icon: Sparkles },
-    { title: "Favoritos", url: "/favorites", icon: Heart },
+    { title: "Meus imóveis", url: "/properties", icon: Home },
+    { title: "Publicar imóvel", url: "/properties/new", icon: Plus },
+    { title: "Meus leads", url: "/leads", icon: MessageSquare },
+    { title: "Meu plano", url: "/plans", icon: CreditCard },
   ],
   corretor: [
     { title: "Painel", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Propriedades", url: "/search", icon: Home },
+    { title: "Imóveis", url: "/properties", icon: Home },
+    { title: "Publicar imóvel", url: "/properties/new", icon: Plus },
     { title: "Leads", url: "/leads", icon: MessageSquare },
     { title: "Visualizações", url: "/analytics", icon: Eye },
+    { title: "Planos", url: "/plans", icon: CreditCard },
   ],
   imobiliaria: [
     { title: "Painel", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Anúncios", url: "/search", icon: Building2 },
+    { title: "Anúncios", url: "/properties", icon: Building2 },
+    { title: "Novo anúncio", url: "/properties/new", icon: Plus },
+    { title: "Leads", url: "/leads", icon: MessageSquare },
     { title: "Usuários", url: "/users", icon: Users },
     { title: "Relatórios", url: "/reports", icon: FileBarChart },
+    { title: "Planos", url: "/plans", icon: CreditCard },
   ],
 };
 
 const roleLabels = {
-  comprador: "Comprador",
+  vendedor: "Vendedor",
   corretor: "Corretor",
   imobiliaria: "Imobiliária",
 };
@@ -59,17 +63,17 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
     <aside
       className={`bg-gradient-earth flex flex-col transition-all duration-300 ${
         collapsed ? "w-16" : "w-64"
-      } min-h-screen`}
+      } min-h-screen border-r border-border`}
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
-        <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-gradient-gold flex items-center justify-center shrink-0">
           <span className="font-display font-bold text-accent-foreground text-sm">AV</span>
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="font-display text-lg font-bold text-sidebar-foreground leading-tight">
-              AgroVista<span className="text-accent">360</span>
+              AgroVista<span className="text-gradient-gold">360</span>
             </h1>
           </div>
         )}
@@ -86,17 +90,27 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
             }}
             className="w-full px-3 py-2 rounded-md bg-sidebar-accent text-sidebar-foreground text-sm border border-sidebar-border focus:outline-none focus:ring-1 focus:ring-accent"
           >
-            <option value="comprador">👤 Comprador</option>
+            <option value="vendedor">👤 Vendedor</option>
             <option value="corretor">🤝 Corretor</option>
             <option value="imobiliaria">🏢 Imobiliária</option>
           </select>
         </div>
       )}
 
+      {/* Plan indicator */}
+      {!collapsed && (
+        <div className="px-3 pb-2">
+          <div className="px-3 py-2 rounded-md bg-accent/10 border border-accent/20">
+            <p className="text-xs text-accent font-medium">Plano Profissional</p>
+            <p className="text-[10px] text-muted-foreground">3 de 15 imóveis</p>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1">
         {!collapsed && (
-          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-3 mb-2">
+          <p className="text-xs uppercase tracking-wider text-sidebar-foreground/40 px-3 mb-2">
             {roleLabels[role]}
           </p>
         )}
@@ -109,7 +123,7 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 isActive
                   ? "bg-sidebar-accent text-accent font-medium"
-                  : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
               }`}
               activeClassName=""
             >
@@ -124,7 +138,7 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
       <div className="px-2 pb-4 space-y-1">
         <button
           onClick={() => navigate("/login")}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 w-full transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 w-full transition-colors"
         >
           <LogOut className="h-5 w-5 shrink-0" />
           {!collapsed && <span>Sair</span>}
