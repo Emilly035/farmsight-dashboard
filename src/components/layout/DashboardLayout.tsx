@@ -4,8 +4,8 @@ import { Menu } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  role: "comprador" | "corretor" | "imobiliaria";
-  onRoleChange: (role: "comprador" | "corretor" | "imobiliaria") => void;
+  role: "vendedor" | "corretor" | "imobiliaria";
+  onRoleChange: (role: "vendedor" | "corretor" | "imobiliaria") => void;
 }
 
 export function DashboardLayout({ children, role, onRoleChange }: DashboardLayoutProps) {
@@ -28,7 +28,10 @@ export function DashboardLayout({ children, role, onRoleChange }: DashboardLayou
             <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
           <div className="flex-1" />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-accent font-medium px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20">
+              Profissional
+            </span>
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
               <span className="text-xs font-medium text-primary-foreground">JD</span>
             </div>

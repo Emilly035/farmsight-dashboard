@@ -14,15 +14,18 @@ export default function PropertyDetail() {
     return (
       <div className="text-center py-16">
         <p className="text-muted-foreground">Propriedade não encontrada.</p>
-        <Link to="/search" className="text-primary hover:underline mt-2 inline-block">Voltar à busca</Link>
+        <Link to="/properties" className="text-primary hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     );
   }
 
+  const statusLabel = { ativo: "Ativo", pausado: "Pausado", vendido: "Vendido" };
+  const statusColor = { ativo: "bg-success/10 text-success", pausado: "bg-accent/20 text-accent", vendido: "bg-muted text-muted-foreground" };
+
   return (
     <div className="space-y-6 max-w-5xl">
-      <Link to="/search" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Voltar à busca
+      <Link to="/properties" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
 
       {/* Gallery */}
@@ -32,13 +35,7 @@ export default function PropertyDetail() {
         </div>
         <div className="flex gap-2">
           {property.images.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedImage(i)}
-              className={`rounded-lg overflow-hidden w-20 h-14 border-2 transition-colors ${
-                i === selectedImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
-              }`}
-            >
+            <button key={i} onClick={() => setSelectedImage(i)} className={`rounded-lg overflow-hidden w-20 h-14 border-2 transition-colors ${i === selectedImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}>
               <img src={img} alt="" className="w-full h-full object-cover" />
             </button>
           ))}
@@ -51,6 +48,9 @@ export default function PropertyDetail() {
           <div className="flex items-center gap-3 mb-1">
             <h1 className="font-display text-3xl font-bold text-foreground">{property.name}</h1>
             <ScoreBadge score={property.productivityScore} size="lg" />
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColor[property.status]}`}>
+              {statusLabel[property.status]}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <MapPin className="h-4 w-4" />
@@ -90,9 +90,7 @@ export default function PropertyDetail() {
           </div>
           <div className="flex flex-wrap gap-2">
             {property.infrastructure.map((item) => (
-              <span key={item} className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
-                {item}
-              </span>
+              <span key={item} className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{item}</span>
             ))}
           </div>
         </div>
@@ -103,9 +101,7 @@ export default function PropertyDetail() {
           </div>
           <div className="flex flex-wrap gap-2">
             {property.suggestedCrops.map((crop) => (
-              <span key={crop} className="text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium">
-                {crop}
-              </span>
+              <span key={crop} className="text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium">{crop}</span>
             ))}
           </div>
         </div>
@@ -122,17 +118,11 @@ export default function PropertyDetail() {
 
       {/* CTA */}
       <div className="flex gap-3">
-        <button
-          onClick={() => setShowContact(true)}
-          className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-        >
+        <button onClick={() => setShowContact(true)} className="px-6 py-3 rounded-lg bg-accent text-accent-foreground font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
-          Falar com corretor
+          Receber contato
         </button>
-        <Link
-          to="/simulator"
-          className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted transition-colors flex items-center gap-2"
-        >
+        <Link to="/simulator" className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted transition-colors flex items-center gap-2">
           <DollarSign className="h-4 w-4" />
           Simular lucro
         </Link>
@@ -140,23 +130,18 @@ export default function PropertyDetail() {
 
       {/* Contact Modal */}
       {showContact && (
-        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl p-6 w-full max-w-md space-y-4 animate-fade-in">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-md space-y-4 animate-fade-in">
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-xl font-bold text-card-foreground">Falar com corretor</h3>
-              <button onClick={() => setShowContact(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="h-5 w-5" />
-              </button>
+              <h3 className="font-display text-xl font-bold text-card-foreground">Receber contato</h3>
+              <button onClick={() => setShowContact(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
             </div>
             <p className="text-sm text-muted-foreground">Sobre: {property.name}</p>
             <div className="space-y-3">
               <input placeholder="Seu nome" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
               <input placeholder="Seu telefone" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
               <textarea placeholder="Sua mensagem..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
-              <button
-                onClick={() => setShowContact(false)}
-                className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-              >
+              <button onClick={() => setShowContact(false)} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
                 Enviar mensagem
               </button>
             </div>
