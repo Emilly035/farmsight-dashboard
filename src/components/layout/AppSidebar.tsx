@@ -138,7 +138,7 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
       {/* Bottom */}
       <div className="px-2 pb-4 space-y-1">
         <button
-          onClick={() => navigate("/login")}
+          onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 w-full transition-colors"
         >
           <LogOut className="h-5 w-5 shrink-0" />
