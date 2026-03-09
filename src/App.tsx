@@ -5,9 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import AuthGuard from "@/components/AuthGuard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import SearchPage from "./pages/SearchPage";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -24,9 +26,11 @@ const App = () => {
   const [role, setRole] = useState<"vendedor" | "corretor" | "imobiliaria">("vendedor");
 
   const withLayout = (page: React.ReactNode) => (
-    <DashboardLayout role={role} onRoleChange={setRole}>
-      {page}
-    </DashboardLayout>
+    <AuthGuard>
+      <DashboardLayout role={role} onRoleChange={setRole}>
+        {page}
+      </DashboardLayout>
+    </AuthGuard>
   );
 
   return (
@@ -39,6 +43,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={withLayout(<Dashboard role={role} />)} />
             <Route path="/search" element={withLayout(<SearchPage />)} />
             <Route path="/properties" element={withLayout(<SearchPage />)} />
