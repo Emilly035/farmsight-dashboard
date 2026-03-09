@@ -1,20 +1,28 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-    }, 1200);
+    setError("");
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setSent(true);
   };
 
   return (
@@ -36,6 +44,11 @@ export default function ForgotPassword() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-destructive/10 text-destructive text-sm px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">E-mail</label>
               <input

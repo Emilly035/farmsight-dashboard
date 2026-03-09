@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import farmHero from "@/assets/farm-hero.jpg";
 
 export default function Login() {
@@ -11,7 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email || !password) {
@@ -19,10 +20,13 @@ export default function Login() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/dashboard");
-    }, 1200);
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (authError) {
+      setError(authError.message);
+      return;
+    }
+    navigate("/dashboard");
   };
 
   return (
