@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SidebarProps {
   role: "vendedor" | "corretor" | "imobiliaria";
