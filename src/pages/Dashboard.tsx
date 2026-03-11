@@ -2,10 +2,7 @@ import { TrendingUp, Eye, MessageSquare, Home, CreditCard, Users, FileBarChart, 
 import { properties, leads, formatCurrency } from "@/data/mockData";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Link } from "react-router-dom";
-
-interface DashboardProps {
-  role: "vendedor" | "corretor" | "imobiliaria";
-}
+import { useUserRole } from "@/hooks/useUserRole";
 
 function StatCard({ icon: Icon, label, value, trend }: { icon: any; label: string; value: string; trend?: string }) {
   return (
