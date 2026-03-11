@@ -20,7 +20,7 @@ export default function Register() {
       email: form.email,
       password: form.password,
       options: {
-        data: { full_name: form.name, role: form.role },
+        data: { full_name: form.name },
         emailRedirectTo: window.location.origin,
       },
     });
