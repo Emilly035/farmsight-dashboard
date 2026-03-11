@@ -58,7 +58,7 @@ const App = () => {
             <Route path="/properties/new" element={withLayout(<PropertyNew />)} />
             <Route path="/property/:id" element={withLayout(<PropertyDetail />)} />
             <Route path="/simulator" element={withLayout(<Simulator />)} />
-            <Route path="/matching" element={withLayout(<Matching />)} />
+            <Route path="/matching" element={withRoleLayout(<Matching />, ["corretor", "imobiliaria"])} />
             <Route path="/leads" element={withLayout(<Leads />)} />
             <Route path="/plans" element={withLayout(<Plans />)} />
             <Route path="/" element={<Navigate to="/login" replace />} />
