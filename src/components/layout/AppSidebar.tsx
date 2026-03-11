@@ -14,10 +14,10 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { AppRole } from "@/hooks/useUserRole";
 
 interface SidebarProps {
-  role: "vendedor" | "corretor" | "imobiliaria";
-  onRoleChange: (role: "vendedor" | "corretor" | "imobiliaria") => void;
+  role: AppRole;
   collapsed: boolean;
   onToggle: () => void;
 }
@@ -55,7 +55,7 @@ const roleLabels = {
   imobiliaria: "Imobiliária",
 };
 
-export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarProps) {
+export function AppSidebar({ role, collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const items = menusByRole[role];
@@ -80,21 +80,12 @@ export function AppSidebar({ role, onRoleChange, collapsed, onToggle }: SidebarP
         )}
       </div>
 
-      {/* Role Selector */}
+      {/* Role display (read-only) */}
       {!collapsed && (
         <div className="px-3 pt-4 pb-2">
-          <select
-            value={role}
-            onChange={(e) => {
-              onRoleChange(e.target.value as typeof role);
-              navigate("/dashboard");
-            }}
-            className="w-full px-3 py-2 rounded-md bg-sidebar-accent text-sidebar-foreground text-sm border border-sidebar-border focus:outline-none focus:ring-1 focus:ring-accent"
-          >
-            <option value="vendedor">👤 Vendedor</option>
-            <option value="corretor">🤝 Corretor</option>
-            <option value="imobiliaria">🏢 Imobiliária</option>
-          </select>
+          <div className="px-3 py-2 rounded-md bg-sidebar-accent text-sidebar-foreground text-sm border border-sidebar-border">
+            {roleLabels[role]}
+          </div>
         </div>
       )}
 

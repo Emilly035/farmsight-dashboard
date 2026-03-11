@@ -1,21 +1,29 @@
 import { useState } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { Menu } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Loader2 } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  role: "vendedor" | "corretor" | "imobiliaria";
-  onRoleChange: (role: "vendedor" | "corretor" | "imobiliaria") => void;
 }
 
-export function DashboardLayout({ children, role, onRoleChange }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { role, loading } = useUserRole();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar
         role={role}
-        onRoleChange={onRoleChange}
         collapsed={collapsed}
         onToggle={() => setCollapsed(!collapsed)}
       />
