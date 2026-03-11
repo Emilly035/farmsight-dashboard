@@ -41,14 +41,11 @@ export type Database = {
     }
     Functions: {
       get_user_role: {
-        Args: { _user_id: string }
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
     }
