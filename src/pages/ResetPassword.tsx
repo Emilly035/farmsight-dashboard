@@ -34,7 +34,7 @@ export default function ResetPassword() {
     const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (updateError) {
-      setError(updateError.message);
+      setError("Não foi possível atualizar a senha. Tente novamente.");
       return;
     }
     setSuccess(true);

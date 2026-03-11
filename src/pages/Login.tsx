@@ -23,7 +23,7 @@ export default function Login() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (authError) {
-      setError(authError.message);
+      setError("E-mail ou senha inválidos. Tente novamente.");
       return;
     }
     navigate("/dashboard");
