@@ -31,6 +31,16 @@ const App = () => {
     </AuthGuard>
   );
 
+  const withRoleLayout = (page: React.ReactNode, allowedRoles: Array<"vendedor" | "corretor" | "imobiliaria">) => (
+    <AuthGuard>
+      <DashboardLayout>
+        <RoleGuard allowedRoles={allowedRoles}>
+          {page}
+        </RoleGuard>
+      </DashboardLayout>
+    </AuthGuard>
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
