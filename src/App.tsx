@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,11 +22,9 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [role, setRole] = useState<"vendedor" | "corretor" | "imobiliaria">("vendedor");
-
   const withLayout = (page: React.ReactNode) => (
     <AuthGuard>
-      <DashboardLayout role={role} onRoleChange={setRole}>
+      <DashboardLayout>
         {page}
       </DashboardLayout>
     </AuthGuard>
@@ -44,7 +41,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={withLayout(<Dashboard role={role} />)} />
+            <Route path="/dashboard" element={withLayout(<Dashboard />)} />
             <Route path="/search" element={withLayout(<SearchPage />)} />
             <Route path="/properties" element={withLayout(<SearchPage />)} />
             <Route path="/properties/new" element={withLayout(<PropertyNew />)} />

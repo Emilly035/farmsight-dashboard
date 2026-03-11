@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "vendedor" });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +20,7 @@ export default function Register() {
       email: form.email,
       password: form.password,
       options: {
-        data: { full_name: form.name, role: form.role },
+        data: { full_name: form.name },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -65,14 +65,6 @@ export default function Register() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Senha</label>
             <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Perfil</label>
-            <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-              <option value="vendedor">Vendedor</option>
-              <option value="corretor">Corretor</option>
-              <option value="imobiliaria">Imobiliária</option>
-            </select>
           </div>
           <button type="submit" disabled={loading} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2">
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
