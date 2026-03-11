@@ -185,7 +185,8 @@ function AgencyDashboard() {
   );
 }
 
-export default function Dashboard({ role }: DashboardProps) {
+export default function Dashboard() {
+  const { role } = useUserRole();
   if (role === "corretor") return <BrokerDashboard />;
   if (role === "imobiliaria") return <AgencyDashboard />;
   return <SellerDashboard />;
