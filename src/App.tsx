@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import AuthGuard from "@/components/AuthGuard";
+import RoleGuard from "@/components/RoleGuard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -30,6 +31,16 @@ const App = () => {
     </AuthGuard>
   );
 
+  const withRoleLayout = (page: React.ReactNode, allowedRoles: Array<"vendedor" | "corretor" | "imobiliaria">) => (
+    <AuthGuard>
+      <DashboardLayout>
+        <RoleGuard allowedRoles={allowedRoles}>
+          {page}
+        </RoleGuard>
+      </DashboardLayout>
+    </AuthGuard>
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -47,7 +58,7 @@ const App = () => {
             <Route path="/properties/new" element={withLayout(<PropertyNew />)} />
             <Route path="/property/:id" element={withLayout(<PropertyDetail />)} />
             <Route path="/simulator" element={withLayout(<Simulator />)} />
-            <Route path="/matching" element={withLayout(<Matching />)} />
+            <Route path="/matching" element={withRoleLayout(<Matching />, ["corretor", "imobiliaria"])} />
             <Route path="/leads" element={withLayout(<Leads />)} />
             <Route path="/plans" element={withLayout(<Plans />)} />
             <Route path="/" element={<Navigate to="/login" replace />} />
