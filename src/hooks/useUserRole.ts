@@ -9,21 +9,10 @@ export function useUserRole() {
 
   useEffect(() => {
     const fetchRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .limit(1)
-        .single();
+      const { data, error } = await supabase.rpc("get_user_role");
 
       if (data && !error) {
-        setRole(data.role as AppRole);
+        setRole(data as AppRole);
       }
       setLoading(false);
     };

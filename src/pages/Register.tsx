@@ -26,7 +26,7 @@ export default function Register() {
     });
     setLoading(false);
     if (authError) {
-      setError(authError.message);
+      setError("Não foi possível criar a conta. Tente novamente.");
       return;
     }
     navigate("/dashboard");
