@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { properties } from "@/data/mockData";
+import { useProperties } from "@/hooks/useProperties";
 import { PropertyCard } from "@/components/PropertyCard";
 
 export default function SearchPage() {
+  const { data: properties = [], isLoading } = useProperties();
   const [query, setQuery] = useState("");
   const [minArea, setMinArea] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000000);
@@ -13,23 +14,31 @@ export default function SearchPage() {
 
   const allCrops = useMemo(() => {
     const set = new Set<string>();
-    properties.forEach((p) => p.suggestedCrops.forEach((c) => set.add(c)));
+    properties.forEach((p) => p.suggested_crops.forEach((c) => set.add(c)));
     return Array.from(set).sort();
-  }, []);
+  }, [properties]);
 
   const filtered = useMemo(() => {
     let result = properties.filter((p) => {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase()) && !p.location.toLowerCase().includes(query.toLowerCase())) return false;
-      if (p.totalArea < minArea) return false;
+      if (p.total_area < minArea) return false;
       if (p.price > maxPrice) return false;
-      if (selectedCrop && !p.suggestedCrops.includes(selectedCrop)) return false;
+      if (selectedCrop && !p.suggested_crops.includes(selectedCrop)) return false;
       return true;
     });
     result.sort((a, b) =>
-      sortBy === "score" ? b.productivityScore - a.productivityScore : a.price - b.price
+      sortBy === "score" ? b.productivity_score - a.productivity_score : a.price - b.price
     );
     return result;
-  }, [query, minArea, maxPrice, selectedCrop, sortBy]);
+  }, [properties, query, minArea, maxPrice, selectedCrop, sortBy]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-muted-foreground">Carregando propriedades...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

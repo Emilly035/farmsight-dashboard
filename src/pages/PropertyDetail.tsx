@@ -1,14 +1,27 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Droplets, Mountain, Sprout, Building, Ruler, DollarSign, MessageSquare, X } from "lucide-react";
-import { properties, formatCurrency, formatArea } from "@/data/mockData";
+import { ArrowLeft, MapPin, Droplets, Mountain, Sprout, Building, Ruler, DollarSign, MessageSquare, X, Loader2 } from "lucide-react";
+import { useProperty } from "@/hooks/useProperties";
+import { formatCurrency, formatArea } from "@/types/property";
 import { ScoreBadge } from "@/components/ScoreBadge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function PropertyDetail() {
   const { id } = useParams();
-  const property = properties.find((p) => p.id === id);
+  const { data: property, isLoading } = useProperty(id);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showContact, setShowContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [sending, setSending] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -19,8 +32,35 @@ export default function PropertyDetail() {
     );
   }
 
-  const statusLabel = { ativo: "Ativo", pausado: "Pausado", vendido: "Vendido" };
-  const statusColor = { ativo: "bg-success/10 text-success", pausado: "bg-accent/20 text-accent", vendido: "bg-muted text-muted-foreground" };
+  const statusLabel: Record<string, string> = { ativo: "Ativo", pausado: "Pausado", vendido: "Vendido" };
+  const statusColor: Record<string, string> = { ativo: "bg-success/10 text-success", pausado: "bg-accent/20 text-accent", vendido: "bg-muted text-muted-foreground" };
+
+  const handleSendLead = async () => {
+    if (!contactForm.name || !contactForm.email) {
+      toast.error("Preencha nome e email");
+      return;
+    }
+    setSending(true);
+    try {
+      const { error } = await supabase.from("leads").insert({
+        name: contactForm.name,
+        email: contactForm.email,
+        phone: contactForm.phone || null,
+        property_id: property.id,
+        message: contactForm.message || null,
+      } as any);
+      if (error) throw error;
+      toast.success("Mensagem enviada com sucesso!");
+      setShowContact(false);
+      setContactForm({ name: "", email: "", phone: "", message: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao enviar mensagem");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const images = property.images?.length ? property.images : (property.image ? [property.image] : []);
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -29,25 +69,29 @@ export default function PropertyDetail() {
       </Link>
 
       {/* Gallery */}
-      <div className="space-y-3">
-        <div className="rounded-xl overflow-hidden aspect-[16/7]">
-          <img src={property.images[selectedImage]} alt={property.name} className="w-full h-full object-cover" />
+      {images.length > 0 && (
+        <div className="space-y-3">
+          <div className="rounded-xl overflow-hidden aspect-[16/7] bg-muted">
+            <img src={images[selectedImage]} alt={property.name} className="w-full h-full object-cover" />
+          </div>
+          {images.length > 1 && (
+            <div className="flex gap-2">
+              {images.map((img, i) => (
+                <button key={i} onClick={() => setSelectedImage(i)} className={`rounded-lg overflow-hidden w-20 h-14 border-2 transition-colors ${i === selectedImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}>
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="flex gap-2">
-          {property.images.map((img, i) => (
-            <button key={i} onClick={() => setSelectedImage(i)} className={`rounded-lg overflow-hidden w-20 h-14 border-2 transition-colors ${i === selectedImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}>
-              <img src={img} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="font-display text-3xl font-bold text-foreground">{property.name}</h1>
-            <ScoreBadge score={property.productivityScore} size="lg" />
+            <ScoreBadge score={property.productivity_score} size="lg" />
             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColor[property.status]}`}>
               {statusLabel[property.status]}
             </span>
@@ -59,19 +103,19 @@ export default function PropertyDetail() {
         </div>
         <div className="text-right">
           <p className="font-display text-3xl font-bold text-foreground">{formatCurrency(property.price)}</p>
-          <p className="text-sm text-muted-foreground">{formatCurrency(property.pricePerHectare)}/ha</p>
+          {property.price_per_hectare && <p className="text-sm text-muted-foreground">{formatCurrency(property.price_per_hectare)}/ha</p>}
         </div>
       </div>
 
-      <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+      {property.description && <p className="text-muted-foreground leading-relaxed">{property.description}</p>}
 
       {/* Info Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {[
-          { icon: Ruler, label: "Área total", value: formatArea(property.totalArea) },
-          { icon: Sprout, label: "Área produtiva", value: formatArea(property.productiveArea) },
-          { icon: Mountain, label: "Tipo de solo", value: property.soilType },
-          { icon: Droplets, label: "Chuva média", value: `${property.avgRainfall} mm/ano` },
+          { icon: Ruler, label: "Área total", value: formatArea(property.total_area) },
+          { icon: Sprout, label: "Área produtiva", value: formatArea(property.productive_area) },
+          { icon: Mountain, label: "Tipo de solo", value: property.soil_type || "—" },
+          { icon: Droplets, label: "Chuva média", value: property.avg_rainfall ? `${property.avg_rainfall} mm/ano` : "—" },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="rounded-xl border border-border bg-card p-4">
             <Icon className="h-5 w-5 text-primary mb-2" />
@@ -83,38 +127,44 @@ export default function PropertyDetail() {
 
       {/* Infrastructure & Crops */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Building className="h-5 w-5 text-primary" />
-            <h3 className="font-display text-lg font-semibold text-card-foreground">Infraestrutura</h3>
+        {property.infrastructure?.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Building className="h-5 w-5 text-primary" />
+              <h3 className="font-display text-lg font-semibold text-card-foreground">Infraestrutura</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {property.infrastructure.map((item) => (
+                <span key={item} className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{item}</span>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {property.infrastructure.map((item) => (
-              <span key={item} className="text-sm px-3 py-1.5 rounded-full bg-muted text-muted-foreground">{item}</span>
-            ))}
+        )}
+        {property.suggested_crops?.length > 0 && (
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Sprout className="h-5 w-5 text-primary" />
+              <h3 className="font-display text-lg font-semibold text-card-foreground">Culturas indicadas</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {property.suggested_crops.map((crop) => (
+                <span key={crop} className="text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium">{crop}</span>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sprout className="h-5 w-5 text-primary" />
-            <h3 className="font-display text-lg font-semibold text-card-foreground">Culturas indicadas</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {property.suggestedCrops.map((crop) => (
-              <span key={crop} className="text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary font-medium">{crop}</span>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Map placeholder */}
-      <div className="rounded-xl border border-border bg-muted h-64 flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
-          <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Mapa da localização</p>
-          <p className="text-xs">{property.lat.toFixed(2)}°, {property.lng.toFixed(2)}°</p>
+      {property.lat && property.lng && (
+        <div className="rounded-xl border border-border bg-muted h-64 flex items-center justify-center">
+          <div className="text-center text-muted-foreground">
+            <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Mapa da localização</p>
+            <p className="text-xs">{property.lat.toFixed(2)}°, {property.lng.toFixed(2)}°</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* CTA */}
       <div className="flex gap-3">
@@ -138,11 +188,13 @@ export default function PropertyDetail() {
             </div>
             <p className="text-sm text-muted-foreground">Sobre: {property.name}</p>
             <div className="space-y-3">
-              <input placeholder="Seu nome" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-              <input placeholder="Seu telefone" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-              <textarea placeholder="Sua mensagem..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
-              <button onClick={() => setShowContact(false)} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
-                Enviar mensagem
+              <input value={contactForm.name} onChange={(e) => setContactForm(f => ({ ...f, name: e.target.value }))} placeholder="Seu nome *" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input value={contactForm.email} onChange={(e) => setContactForm(f => ({ ...f, email: e.target.value }))} placeholder="Seu email *" type="email" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input value={contactForm.phone} onChange={(e) => setContactForm(f => ({ ...f, phone: e.target.value }))} placeholder="Seu telefone" className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea value={contactForm.message} onChange={(e) => setContactForm(f => ({ ...f, message: e.target.value }))} placeholder="Sua mensagem..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+              <button onClick={handleSendLead} disabled={sending} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+                {sending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {sending ? "Enviando..." : "Enviar mensagem"}
               </button>
             </div>
           </div>

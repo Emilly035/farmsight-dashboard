@@ -1,17 +1,26 @@
 import { useState } from "react";
 import { MessageSquare, Phone, Mail, Calendar } from "lucide-react";
-import { leads } from "@/data/mockData";
+import { useLeads } from "@/hooks/useLeads";
 
 export default function Leads() {
+  const { data: leads = [], isLoading } = useLeads();
   const [filter, setFilter] = useState<"all" | "novo" | "contato" | "fechado">("all");
 
   const filtered = filter === "all" ? leads : leads.filter((l) => l.status === filter);
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     novo: "bg-accent/20 text-accent-foreground",
     contato: "bg-primary/10 text-primary",
     fechado: "bg-success/10 text-success",
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-muted-foreground">Carregando leads...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -60,8 +69,8 @@ export default function Leads() {
                 <p className="text-sm text-muted-foreground mb-3">{lead.message}</p>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{lead.email}</span>
-                  <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{lead.phone}</span>
-                  <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{lead.date}</span>
+                  {lead.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{lead.phone}</span>}
+                  <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{new Date(lead.created_at).toLocaleDateString("pt-BR")}</span>
                 </div>
               </div>
               <div className="text-right shrink-0">
@@ -71,6 +80,11 @@ export default function Leads() {
             </div>
           </div>
         ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">Nenhum lead encontrado.</p>
+          </div>
+        )}
       </div>
     </div>
   );
