@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Upload, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Upload, X, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const steps = ["Dados básicos", "Produção", "Infraestrutura", "Mídia", "Revisar"];
 
 export default function PropertyNew() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     name: "",
     location: "",
@@ -25,7 +31,7 @@ export default function PropertyNew() {
 
   const toggleArrayItem = (field: "infrastructure" | "suggestedCrops", item: string) => {
     const arr = form[field];
-    updateField(field, arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item]);
+    updateField(field, arr.includes(item) ? arr.filter((i: string) => i !== item) : [...arr, item]);
   };
 
   const canNext = () => {
@@ -34,14 +40,80 @@ export default function PropertyNew() {
     return true;
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remaining = 10 - imageFiles.length;
+    const selected = files.slice(0, remaining);
+    setImageFiles((prev) => [...prev, ...selected]);
+    selected.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreviews((prev) => [...prev, ev.target?.result as string]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePublish = async () => {
+    setPublishing(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Não autenticado");
+
+      // Upload images
+      const imageUrls: string[] = [];
+      for (const file of imageFiles) {
+        const ext = file.name.split(".").pop();
+        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from("property-images")
+          .upload(path, file);
+        if (uploadErr) throw uploadErr;
+        const { data: urlData } = supabase.storage
+          .from("property-images")
+          .getPublicUrl(path);
+        imageUrls.push(urlData.publicUrl);
+      }
+
+      const totalArea = Number(form.totalArea);
+      const price = Number(form.price);
+
+      const { error } = await supabase.from("properties").insert({
+        owner_id: user.id,
+        name: form.name,
+        location: form.location,
+        state: form.state,
+        total_area: totalArea,
+        productive_area: Number(form.productiveArea) || 0,
+        soil_type: form.soilType || null,
+        avg_rainfall: Number(form.avgRainfall) || null,
+        infrastructure: form.infrastructure,
+        suggested_crops: form.suggestedCrops,
+        price,
+        price_per_hectare: totalArea > 0 ? Math.round(price / totalArea) : null,
+        image: imageUrls[0] || null,
+        images: imageUrls,
+        description: form.description || null,
+        status: "ativo",
+      } as any);
+
+      if (error) throw error;
+      toast.success("Imóvel publicado com sucesso!");
+      navigate("/properties");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao publicar imóvel");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const infraOptions = ["Irrigação", "Armazém", "Curral", "Energia elétrica", "Pivôs centrais", "Silos", "Casa sede", "Lago", "Estufa", "Galpão", "Pista de pouso"];
   const cropOptions = ["Soja", "Milho", "Algodão", "Café", "Cana-de-açúcar", "Trigo", "Frutas", "Hortaliças"];
   const soilOptions = ["Latossolo Vermelho", "Latossolo Amarelo", "Latossolo Vermelho-Amarelo", "Terra Roxa", "Argissolo", "Cambissolo"];
   const stateOptions = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
-
-  const handlePublish = () => {
-    navigate("/properties");
-  };
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -146,16 +218,37 @@ export default function PropertyNew() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer"
+            >
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Arraste fotos aqui ou clique para selecionar</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG ou WEBP · máx 10 fotos</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG ou WEBP · máx 10 fotos ({imageFiles.length}/10)</p>
             </div>
-            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/30 transition-colors cursor-pointer">
-              <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Adicionar vídeo (opcional)</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">MP4 · máx 100MB</p>
-            </div>
+            {imagePreviews.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {imagePreviews.map((src, i) => (
+                  <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-border">
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-background/80 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -170,6 +263,7 @@ export default function PropertyNew() {
               <ReviewItem label="Solo" value={form.soilType} />
               <ReviewItem label="Área produtiva" value={`${form.productiveArea} ha`} />
               <ReviewItem label="Chuva média" value={`${form.avgRainfall} mm/ano`} />
+              <ReviewItem label="Fotos" value={`${imageFiles.length} imagem(s)`} />
             </div>
             {form.suggestedCrops.length > 0 && (
               <div>
@@ -211,9 +305,11 @@ export default function PropertyNew() {
         ) : (
           <button
             onClick={handlePublish}
-            className="px-6 py-2.5 rounded-lg bg-accent text-accent-foreground text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+            disabled={publishing}
+            className="px-6 py-2.5 rounded-lg bg-accent text-accent-foreground text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
           >
-            <Check className="h-4 w-4" /> Publicar imóvel
+            {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            {publishing ? "Publicando..." : "Publicar imóvel"}
           </button>
         )}
       </div>

@@ -1,8 +1,10 @@
 import { TrendingUp, Eye, MessageSquare, Home, CreditCard, Users, FileBarChart, Building2, Plus } from "lucide-react";
-import { properties, leads, formatCurrency } from "@/data/mockData";
+import { formatCurrency } from "@/types/property";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Link } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useMyProperties, useProperties } from "@/hooks/useProperties";
+import { useLeads } from "@/hooks/useLeads";
 
 function StatCard({ icon: Icon, label, value, trend }: { icon: any; label: string; value: string; trend?: string }) {
   return (
@@ -22,9 +24,9 @@ function StatCard({ icon: Icon, label, value, trend }: { icon: any; label: strin
 }
 
 function SellerDashboard() {
-  const myProperties = properties.filter(p => p.ownerId === "user1");
+  const { data: myProperties = [] } = useMyProperties();
+  const { data: leads = [] } = useLeads();
   const activeCount = myProperties.filter(p => p.status === "ativo").length;
-  const myLeads = leads.filter(l => myProperties.some(p => p.id === l.propertyId));
 
   return (
     <div className="space-y-8">
@@ -44,12 +46,11 @@ function SellerDashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Home} label="Imóveis ativos" value={String(activeCount)} />
-        <StatCard icon={MessageSquare} label="Leads recebidos" value={String(myLeads.length)} trend="+2 esta semana" />
-        <StatCard icon={Eye} label="Visualizações" value="342" trend="+12% mensal" />
-        <StatCard icon={CreditCard} label="Plano atual" value="Profissional" />
+        <StatCard icon={MessageSquare} label="Leads recebidos" value={String(leads.length)} />
+        <StatCard icon={Eye} label="Visualizações" value="—" />
+        <StatCard icon={CreditCard} label="Plano atual" value="—" />
       </div>
 
-      {/* Plan usage */}
       <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-display text-lg font-semibold text-card-foreground">Uso do plano</h3>
@@ -58,10 +59,10 @@ function SellerDashboard() {
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-accent" style={{ width: "20%" }} />
+              <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min((myProperties.length / 15) * 100, 100)}%` }} />
             </div>
           </div>
-          <span className="text-sm text-muted-foreground">3 de 15 imóveis</span>
+          <span className="text-sm text-muted-foreground">{myProperties.length} imóveis</span>
         </div>
       </div>
 
@@ -74,6 +75,9 @@ function SellerDashboard() {
           {myProperties.slice(0, 3).map((p) => (
             <PropertyCard key={p.id} property={p} />
           ))}
+          {myProperties.length === 0 && (
+            <p className="text-muted-foreground col-span-3 text-center py-8">Nenhum imóvel cadastrado ainda.</p>
+          )}
         </div>
       </div>
     </div>
@@ -81,7 +85,10 @@ function SellerDashboard() {
 }
 
 function BrokerDashboard() {
+  const { data: properties = [] } = useProperties();
+  const { data: leads = [] } = useLeads();
   const newLeads = leads.filter((l) => l.status === "novo").length;
+
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between">
@@ -101,8 +108,8 @@ function BrokerDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Building2} label="Propriedades" value={String(properties.length)} />
         <StatCard icon={MessageSquare} label="Leads novos" value={String(newLeads)} trend={`${newLeads} pendentes`} />
-        <StatCard icon={Eye} label="Visualizações" value="1.247" trend="+18% mensal" />
-        <StatCard icon={TrendingUp} label="Conversão" value="12%" />
+        <StatCard icon={Eye} label="Visualizações" value="—" />
+        <StatCard icon={TrendingUp} label="Conversão" value="—" />
       </div>
 
       <div>
@@ -121,7 +128,10 @@ function BrokerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {leads.map((lead) => (
+              {leads.length === 0 && (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Nenhum lead encontrado.</td></tr>
+              )}
+              {leads.slice(0, 5).map((lead) => (
                 <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-muted/50">
                   <td className="px-4 py-3 text-sm text-card-foreground font-medium">{lead.name}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{lead.propertyName}</td>
@@ -134,7 +144,7 @@ function BrokerDashboard() {
                       {lead.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{lead.date}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{new Date(lead.created_at).toLocaleDateString("pt-BR")}</td>
                 </tr>
               ))}
             </tbody>
@@ -146,6 +156,9 @@ function BrokerDashboard() {
 }
 
 function AgencyDashboard() {
+  const { data: properties = [] } = useProperties();
+  const { data: leads = [] } = useLeads();
+
   return (
     <div className="space-y-8">
       <div>
@@ -154,18 +167,17 @@ function AgencyDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Building2} label="Anúncios ativos" value={String(properties.length)} trend="+2 este mês" />
-        <StatCard icon={Users} label="Corretores" value="8" />
-        <StatCard icon={MessageSquare} label="Total de leads" value={String(leads.length)} trend="+15% mensal" />
-        <StatCard icon={FileBarChart} label="Faturamento" value="R$ 156M" />
+        <StatCard icon={Building2} label="Anúncios ativos" value={String(properties.filter(p => p.status === "ativo").length)} />
+        <StatCard icon={Users} label="Corretores" value="—" />
+        <StatCard icon={MessageSquare} label="Total de leads" value={String(leads.length)} />
+        <StatCard icon={FileBarChart} label="Faturamento" value="—" />
       </div>
 
-      {/* Plan */}
       <div className="rounded-xl border border-accent/20 bg-accent/5 p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-accent font-medium">Plano Imobiliária</p>
-            <p className="text-xs text-muted-foreground mt-1">R$ 150/mês · Imóveis ilimitados · 8 usuários ativos</p>
+            <p className="text-xs text-muted-foreground mt-1">Gerencie seus imóveis e equipe</p>
           </div>
           <Link to="/plans" className="px-4 py-2 rounded-lg border border-accent/30 text-accent text-sm font-medium hover:bg-accent/10 transition-colors">
             Gerenciar plano
@@ -179,6 +191,9 @@ function AgencyDashboard() {
           {properties.slice(0, 3).map((p) => (
             <PropertyCard key={p.id} property={p} />
           ))}
+          {properties.length === 0 && (
+            <p className="text-muted-foreground col-span-3 text-center py-8">Nenhum imóvel encontrado.</p>
+          )}
         </div>
       </div>
     </div>
