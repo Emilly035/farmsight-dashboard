@@ -39,7 +39,7 @@ export default function Matching() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-display text-lg font-semibold text-card-foreground">{property.name}</h3>
-                  <p className="text-sm text-muted-foreground">{property.location}, {property.state} · {formatArea(property.totalArea)}</p>
+                  <p className="text-sm text-muted-foreground">{property.location}, {property.state} · {formatArea(property.total_area)}</p>
                 </div>
                 <ScoreBadge score={property.productivityScore} />
               </div>
