@@ -1,10 +1,14 @@
 import { Sparkles, Star } from "lucide-react";
-import { properties, formatCurrency, formatArea } from "@/data/mockData";
+import { formatCurrency, formatArea } from "@/types/property";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { Link } from "react-router-dom";
+import { useProperties } from "@/hooks/useProperties";
 
 export default function Matching() {
-  const sorted = [...properties].sort((a, b) => b.productivityScore - a.productivityScore);
+  const { data: properties = [], isLoading } = useProperties();
+  const sorted = [...properties].sort((a, b) => b.productivity_score - a.productivity_score);
+
+  if (isLoading) return <div className="flex items-center justify-center py-16"><p className="text-muted-foreground">Carregando...</p></div>;
 
   return (
     <div className="space-y-6 max-w-4xl">
