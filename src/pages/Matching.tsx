@@ -41,7 +41,7 @@ export default function Matching() {
                   <h3 className="font-display text-lg font-semibold text-card-foreground">{property.name}</h3>
                   <p className="text-sm text-muted-foreground">{property.location}, {property.state} · {formatArea(property.total_area)}</p>
                 </div>
-                <ScoreBadge score={property.productivityScore} />
+                <ScoreBadge score={property.productivity_score} />
               </div>
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-sm font-medium text-card-foreground">{formatCurrency(property.price)}</span>
