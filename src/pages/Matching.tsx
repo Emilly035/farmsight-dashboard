@@ -28,7 +28,7 @@ export default function Matching() {
             className="flex gap-4 rounded-xl border border-border bg-card p-4 hover:shadow-md transition-all animate-fade-in group"
           >
             <div className="relative w-32 h-24 rounded-lg overflow-hidden shrink-0">
-              <img src={property.image} alt={property.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              {property.image && <img src={property.image} alt={property.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />}
               {index < 3 && (
                 <div className="absolute top-1 left-1 w-6 h-6 rounded-full bg-accent flex items-center justify-center">
                   <Star className="h-3 w-3 text-accent-foreground" />
