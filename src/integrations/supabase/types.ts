@@ -14,6 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          property_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          property_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          property_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      properties: {
+        Row: {
+          avg_rainfall: number | null
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          images: string[] | null
+          infrastructure: string[] | null
+          lat: number | null
+          lng: number | null
+          location: string
+          name: string
+          owner_id: string
+          price: number
+          price_per_hectare: number | null
+          productive_area: number
+          productivity_score: number | null
+          soil_type: string | null
+          state: string
+          status: string
+          suggested_crops: string[] | null
+          total_area: number
+          updated_at: string
+        }
+        Insert: {
+          avg_rainfall?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          images?: string[] | null
+          infrastructure?: string[] | null
+          lat?: number | null
+          lng?: number | null
+          location: string
+          name: string
+          owner_id?: string
+          price: number
+          price_per_hectare?: number | null
+          productive_area?: number
+          productivity_score?: number | null
+          soil_type?: string | null
+          state: string
+          status?: string
+          suggested_crops?: string[] | null
+          total_area: number
+          updated_at?: string
+        }
+        Update: {
+          avg_rainfall?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          images?: string[] | null
+          infrastructure?: string[] | null
+          lat?: number | null
+          lng?: number | null
+          location?: string
+          name?: string
+          owner_id?: string
+          price?: number
+          price_per_hectare?: number | null
+          productive_area?: number
+          productivity_score?: number | null
+          soil_type?: string | null
+          state?: string
+          status?: string
+          suggested_crops?: string[] | null
+          total_area?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
