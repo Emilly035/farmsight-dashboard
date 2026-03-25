@@ -46,7 +46,7 @@ export default function Matching() {
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-sm font-medium text-card-foreground">{formatCurrency(property.price)}</span>
                 <div className="flex gap-1.5">
-                  {property.suggestedCrops.slice(0, 3).map((c) => (
+                  {property.suggested_crops.slice(0, 3).map((c) => (
                     <span key={c} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{c}</span>
                   ))}
                 </div>

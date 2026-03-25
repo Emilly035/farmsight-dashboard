@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Calculator, TrendingUp, DollarSign, Clock } from "lucide-react";
-import { cropData, formatCurrency } from "@/data/mockData";
+import { formatCurrency } from "@/types/property";
+import { cropData } from "@/data/mockData";
 
 export default function Simulator() {
   const [selectedCrop, setSelectedCrop] = useState(cropData[0].name);

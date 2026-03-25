@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Crown, X } from "lucide-react";
-import { plans, formatCurrency } from "@/data/mockData";
+import { plans } from "@/data/mockData";
+import { formatCurrency } from "@/types/property";
 
 export default function Plans() {
   const [showUpgrade, setShowUpgrade] = useState(false);
