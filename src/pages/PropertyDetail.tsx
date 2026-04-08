@@ -65,9 +65,15 @@ export default function PropertyDetail() {
   const statusLabel: Record<string, string> = { ativo: "Ativo", pausado: "Pausado", vendido: "Vendido" };
   const statusColor: Record<string, string> = { ativo: "bg-success/10 text-success", pausado: "bg-accent/20 text-accent", vendido: "bg-muted text-muted-foreground" };
 
+  const emailRegex = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
+
   const handleSendLead = async () => {
-    if (!contactForm.name || !contactForm.email) {
+    if (!contactForm.name.trim() || !contactForm.email.trim()) {
       toast.error("Preencha nome e email");
+      return;
+    }
+    if (!emailRegex.test(contactForm.email.trim())) {
+      toast.error("Informe um email válido");
       return;
     }
     setSending(true);
