@@ -1,19 +1,49 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Droplets, Mountain, Sprout, Building, Ruler, DollarSign, MessageSquare, X, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, MapPin, Droplets, Mountain, Sprout, Building, Ruler, DollarSign, MessageSquare, X, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useProperty } from "@/hooks/useProperties";
 import { formatCurrency, formatArea } from "@/types/property";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function PropertyDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: property, isLoading } = useProperty(id);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showContact, setShowContact] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [sending, setSending] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    const checkOwner = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && property) setIsOwner(user.id === property.owner_id);
+    };
+    checkOwner();
+  }, [property]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const { error } = await supabase.from("properties").delete().eq("id", id!);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      queryClient.invalidateQueries({ queryKey: ["my-properties"] });
+      toast.success("Imóvel excluído com sucesso!");
+      navigate("/properties");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir imóvel");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -167,7 +197,7 @@ export default function PropertyDetail() {
       )}
 
       {/* CTA */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button onClick={() => setShowContact(true)} className="px-6 py-3 rounded-lg bg-accent text-accent-foreground font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
           Receber contato
@@ -176,7 +206,36 @@ export default function PropertyDetail() {
           <DollarSign className="h-4 w-4" />
           Simular lucro
         </Link>
+        {isOwner && (
+          <>
+            <Link to={`/property/${id}/edit`} className="px-6 py-3 rounded-lg border border-border text-foreground font-medium hover:bg-muted transition-colors flex items-center gap-2">
+              <Pencil className="h-4 w-4" />
+              Editar
+            </Link>
+            <button onClick={() => setShowDeleteConfirm(true)} className="px-6 py-3 rounded-lg border border-destructive/30 text-destructive font-medium hover:bg-destructive/10 transition-colors flex items-center gap-2">
+              <Trash2 className="h-4 w-4" />
+              Excluir
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-sm space-y-4 animate-fade-in">
+            <h3 className="font-display text-xl font-bold text-card-foreground">Excluir imóvel?</h3>
+            <p className="text-sm text-muted-foreground">Esta ação não pode ser desfeita. O imóvel e todos os leads associados serão removidos permanentemente.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 rounded-lg border border-border text-foreground text-sm hover:bg-muted transition-colors">Cancelar</button>
+              <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2">
+                {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {deleting ? "Excluindo..." : "Excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contact Modal */}
       {showContact && (

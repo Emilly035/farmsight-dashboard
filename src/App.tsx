@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import SearchPage from "./pages/SearchPage";
 import PropertyDetail from "./pages/PropertyDetail";
 import PropertyNew from "./pages/PropertyNew";
+import PropertyEdit from "./pages/PropertyEdit";
 import Simulator from "./pages/Simulator";
 import Matching from "./pages/Matching";
 import Leads from "./pages/Leads";
@@ -57,6 +58,7 @@ const App = () => {
             <Route path="/properties" element={withLayout(<SearchPage />)} />
             <Route path="/properties/new" element={withLayout(<PropertyNew />)} />
             <Route path="/property/:id" element={withLayout(<PropertyDetail />)} />
+            <Route path="/property/:id/edit" element={withLayout(<PropertyEdit />)} />
             <Route path="/simulator" element={withLayout(<Simulator />)} />
             <Route path="/matching" element={withRoleLayout(<Matching />, ["corretor", "imobiliaria"])} />
             <Route path="/leads" element={withLayout(<Leads />)} />
