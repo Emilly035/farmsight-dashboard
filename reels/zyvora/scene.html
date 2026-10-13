@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #07060f; }
+  body { font-family: 'Inter', 'Inter Display', sans-serif; color: #fff; position: relative; }
+  .layer { position: absolute; inset: 0; }
+  #bg { background: radial-gradient(120% 80% at 50% 0%, #1b1240 0%, #07060f 60%); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: .55; }
+  #b1 { width: 900px; height: 900px; background: #6d4cff; }
+  #b2 { width: 800px; height: 800px; background: #00d4c8; }
+  #grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 90px 90px;
+    mask-image: radial-gradient(70% 55% at 50% 50%, #000 0%, transparent 100%);
+  }
+  .scene { position: absolute; inset: 0; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; padding: 0 90px; text-align: center; opacity: 0; }
+  .hook { font-family: 'Inter Display', 'Inter'; font-weight: 800; font-size: 104px; line-height: 1.04; letter-spacing: -3px; }
+  .word { display: inline-block; will-change: transform, opacity; }
+  .grad { background: linear-gradient(90deg, #8f7bff, #2ee6d6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pain { font-weight: 700; font-size: 80px; letter-spacing: -2px; line-height: 1.5; position: relative; color: #cfd0e6; }
+  .pain .strike { position: absolute; left: -10px; right: -10px; top: 52%; height: 10px; background: #ff4d6d;
+                  border-radius: 6px; transform-origin: left center; }
+  .painline { position: relative; display: inline-block; }
+  .logo { display: flex; align-items: center; gap: 36px; }
+  .mark { width: 190px; height: 190px; border-radius: 52px; position: relative;
+          background: linear-gradient(135deg, #7b5cff, #22d8cc); box-shadow: 0 30px 120px rgba(110,80,255,.6); }
+  .mark svg { position: absolute; inset: 0; }
+  .wordmark { font-family: 'Inter Display', 'Inter'; font-weight: 800; font-size: 170px; letter-spacing: -6px; }
+  .tagline { margin-top: 56px; font-size: 54px; font-weight: 500; color: #c9c7e8; letter-spacing: -1px; }
+  .cards { display: flex; flex-direction: column; gap: 34px; width: 100%; }
+  .card { display: flex; align-items: center; gap: 36px; padding: 40px 46px; border-radius: 40px; text-align: left;
+          background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.12); backdrop-filter: blur(20px); }
+  .icon { flex: 0 0 120px; height: 120px; border-radius: 32px; display: grid; place-items: center;
+          background: linear-gradient(135deg, rgba(123,92,255,.35), rgba(34,216,204,.35)); }
+  .card h3 { font-size: 58px; font-weight: 800; letter-spacing: -1.5px; }
+  .card p { font-size: 36px; color: #b9b8d6; margin-top: 8px; font-weight: 500; }
+  .kicker { font-size: 40px; font-weight: 700; letter-spacing: 8px; text-transform: uppercase; color: #8f7bff; margin-bottom: 60px; }
+  .cta-title { font-family: 'Inter Display', 'Inter'; font-weight: 800; font-size: 120px; letter-spacing: -4px; line-height: 1.02; }
+  .btn { margin-top: 80px; padding: 40px 90px; border-radius: 999px; font-size: 52px; font-weight: 800;
+         background: linear-gradient(90deg, #7b5cff, #22d8cc); box-shadow: 0 20px 80px rgba(80,140,255,.55); }
+  .handle { margin-top: 56px; font-size: 46px; font-weight: 600; color: #c9c7e8; }
+  #progress { position: absolute; left: 90px; right: 90px; top: 140px; height: 8px; border-radius: 8px; background: rgba(255,255,255,.12); }
+  #progress i { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, #7b5cff, #22d8cc); width: 0; }
+  .spark { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+</style>
+</head>
+<body>
+  <div class="layer" id="bg"></div>
+  <div class="blob" id="b1"></div>
+  <div class="blob" id="b2"></div>
+  <div class="layer" id="grid"></div>
+  <div class="layer" id="sparks"></div>
+
+  <!-- Cena 1: gancho -->
+  <div class="scene" id="s1">
+    <div class="hook">
+      <span class="word">Sua</span> <span class="word">empresa</span><br>
+      <span class="word">ainda</span> <span class="word">trabalha</span><br>
+      <span class="word">no</span> <span class="word grad">improviso?</span>
+    </div>
+  </div>
+
+  <!-- Cena 2: dores -->
+  <div class="scene" id="s2">
+    <div class="pain">
+      <div><span class="painline">Dados espalhados.<i class="strike"></i></span></div>
+      <div><span class="painline">Processos manuais.<i class="strike"></i></span></div>
+      <div><span class="painline">Decisões no escuro.<i class="strike"></i></span></div>
+    </div>
+  </div>
+
+  <!-- Cena 3: logo -->
+  <div class="scene" id="s3">
+    <div class="logo">
+      <div class="mark">
+        <svg viewBox="0 0 190 190"><path id="zpath" d="M55 58 H135 L55 132 H135" fill="none" stroke="#fff"
+          stroke-width="20" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+      </div>
+      <div class="wordmark" id="wm"></div>
+    </div>
+    <div class="tagline" id="tag">Tecnologia que simplifica.</div>
+  </div>
+
+  <!-- Cena 4: pilares -->
+  <div class="scene" id="s4">
+    <div class="kicker">Com a Zyvora</div>
+    <div class="cards">
+      <div class="card">
+        <div class="icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div><h3>Automação</h3><p>Menos tarefas repetitivas</p></div>
+      </div>
+      <div class="card">
+        <div class="icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg></div>
+        <div><h3>Dados em tempo real</h3><p>Decisões com clareza</p></div>
+      </div>
+      <div class="card">
+        <div class="icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div>
+        <div><h3>Escala sem atrito</h3><p>Cresce junto com você</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cena 5: CTA -->
+  <div class="scene" id="s5">
+    <div class="cta-title">Seu próximo<br>nível começa<br><span class="grad">aqui.</span></div>
+    <div class="btn">Conheça a Zyvora</div>
+    <div class="handle">@zyvora · link na bio</div>
+  </div>
+
+  <div id="progress"><i></i></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const easeOut = x => 1 - Math.pow(1 - x, 3);
+const easeInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const easeBack = x => { const c1 = 1.7, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const DURATION = 15;
+
+// cenas: [início, fim]
+const S = { s1: [-0.4, 2.8], s2: [2.8, 5.6], s3: [5.6, 9.0], s4: [9.0, 12.4], s5: [12.4, 15.2] };
+
+function sceneAlpha(t, [a, b]) {
+  const fin = easeOut(prog(t, a, a + .35));
+  const fout = 1 - easeInOut(prog(t, b - .35, b));
+  return Math.min(fin, fout);
+}
+
+// faíscas determinísticas
+const sparks = [];
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+for (let i = 0; i < 40; i++) {
+  const el = document.createElement('i'); el.className = 'spark'; $('#sparks').appendChild(el);
+  sparks.push({ el, x: rnd() * 1080, y: rnd() * 1920, v: 30 + rnd() * 70, s: .4 + rnd() * 1.2, p: rnd() * 6.28 });
+}
+
+window.render = function (t) {
+  // fundo
+  $('#b1').style.transform = `translate(${-250 + Math.sin(t * .6) * 180}px, ${-200 + Math.cos(t * .4) * 160}px)`;
+  $('#b2').style.transform = `translate(${480 + Math.cos(t * .5) * 160}px, ${1250 + Math.sin(t * .7) * 200}px)`;
+  $('#grid').style.backgroundPosition = `0 ${t * 40}px`;
+  sparks.forEach(s => {
+    const y = ((s.y - t * s.v) % 1920 + 1920) % 1920;
+    s.el.style.transform = `translate(${s.x + Math.sin(t + s.p) * 20}px, ${y}px) scale(${s.s})`;
+    s.el.style.opacity = .15 + .35 * (0.5 + 0.5 * Math.sin(t * 2 + s.p));
+  });
+  $('#progress i').style.width = `${clamp(t / DURATION) * 100}%`;
+
+  for (const id in S) $('#' + id).style.opacity = sceneAlpha(t, S[id]);
+
+  // Cena 1: palavras entram uma a uma
+  $$('#s1 .word').forEach((w, i) => {
+    const p = easeBack(prog(t, -.3 + i * .16, .1 + i * .16));
+    w.style.opacity = clamp(p * 1.5);
+    w.style.transform = `translateY(${(1 - p) * 90}px) scale(${.85 + .15 * p})`;
+  });
+  const s1z = 1 + prog(t, 0, 2.8) * .06;
+  $('#s1 .hook').style.transform = `scale(${s1z})`;
+
+  // Cena 2: linhas entram e são riscadas
+  $$('#s2 .painline').forEach((l, i) => {
+    const a = 3.0 + i * .55;
+    const p = easeOut(prog(t, a, a + .4));
+    l.style.opacity = p; l.style.transform = `translateX(${(1 - p) * -80}px)`;
+    l.querySelector('.strike').style.transform = `scaleX(${easeInOut(prog(t, a + .45, a + .8))})`;
+    l.style.color = prog(t, a + .6, a + .8) > 0 ? `rgba(207,208,230,${1 - .5 * prog(t, a + .6, a + .9)})` : '';
+  });
+
+  // Cena 3: logo
+  const mk = easeBack(prog(t, 5.8, 6.4));
+  $('.mark').style.transform = `scale(${mk}) rotate(${(1 - mk) * -40}deg)`;
+  $('#zpath').style.strokeDashoffset = 1 - easeInOut(prog(t, 6.1, 6.8));
+  const name = 'Zyvora';
+  const n = Math.round(prog(t, 6.4, 7.1) * name.length);
+  $('#wm').innerHTML = [...name].map((c, i) => {
+    const p = easeOut(prog(t, 6.4 + i * .1, 6.75 + i * .1));
+    return `<span class="word" style="opacity:${p};transform:translateY(${(1 - p) * 40}px)">${c}</span>`;
+  }).join('');
+  const tg = easeOut(prog(t, 7.3, 7.8));
+  $('#tag').style.opacity = tg; $('#tag').style.transform = `translateY(${(1 - tg) * 30}px)`;
+  $('#s3 .logo').style.transform = `scale(${1 + prog(t, 6, 9) * .05})`;
+
+  // Cena 4: cards
+  const k = easeOut(prog(t, 9.1, 9.5));
+  $('#s4 .kicker').style.opacity = k;
+  $$('#s4 .card').forEach((c, i) => {
+    const p = easeBack(prog(t, 9.3 + i * .3, 9.8 + i * .3));
+    c.style.opacity = clamp(p);
+    c.style.transform = `translateX(${(1 - p) * 140}px)`;
+    const glow = clamp(1 - Math.abs(t - (10.6 + i * .5)) * 2);
+    c.style.borderColor = `rgba(${143 - 100 * glow},${123 + 100 * glow},255,${.12 + .6 * glow})`;
+  });
+
+  // Cena 5: CTA
+  const ct = easeOut(prog(t, 12.5, 13.0));
+  $('#s5 .cta-title').style.transform = `translateY(${(1 - ct) * 60}px)`;
+  $('#s5 .cta-title').style.opacity = ct;
+  const bt = easeBack(prog(t, 13.0, 13.5));
+  const pulse = 1 + .03 * Math.sin(Math.max(0, t - 13.5) * 6);
+  $('#s5 .btn').style.transform = `scale(${bt * pulse})`;
+  const hd = easeOut(prog(t, 13.4, 13.9));
+  $('#s5 .handle').style.opacity = hd;
+};
+render(0);
+</script>
+</body>
+</html>
